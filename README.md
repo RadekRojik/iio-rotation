@@ -207,7 +207,7 @@ sudo install -Dm755 target/release/iio-rotation /usr/local/bin/iio-rotation
 
 If no configuration file is specified using the `-c` option, the program first tries to load the configuration from:
 
-```toml
+```
 ~/.config/iio-rotation/config.toml
 ```
 
@@ -219,7 +219,7 @@ If this file does not exist, the built-in default configuration is used instead.
 
 Recommended location for user configuration files:
 
-```toml
+```
 ~/.config/iio-rotation/
 ```
 
