@@ -1,12 +1,12 @@
-name: Build and Release
+name: Release
 
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*'
 
 jobs:
-  build-linux:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,20 +21,18 @@ jobs:
 
       - name: Package binary
         run: |
+          ls -R
           mkdir -p dist
           cp target/release/iio-rotation dist/iio-rotation-linux-x86_64
           tar -C dist -czf iio-rotation-${{ github.ref_name }}-linux-x86_64.tar.gz iio-rotation-linux-x86_64
+          ls -l
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: iio-rotation-${{ github.ref_name }}-linux-x86_64
-          path: iio-rotation-${{ github.ref_name }}-linux-x86_64.tar.gz
-
-      - name: Publish GitHub release
+      - name: Create GitHub release and upload binary
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          tag_name: ${{ github.ref_name }}
+          name: "iio-rotation ${{ github.ref_name }}"
           files: iio-rotation-${{ github.ref_name }}-linux-x86_64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
