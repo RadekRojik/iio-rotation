@@ -140,27 +140,145 @@ undefined = "notify-send -t 1000 'iio-rotation' 'Some undefined event (orientati
 
 ---
 
-## Usage
+# iio-rotation – build & configuration guide
 
-### Interactive mode
+This describes how to compile `iio-rotation` from source and where to place configuration files.
+
+---
+
+## Requirements
+
+* Linux system with D-Bus
+* `iio-sensor-proxy` running (usually provided by the distribution)
+* Rust toolchain (stable)
+
+On most distributions, `iio-sensor-proxy` is already installed on laptops or tablets with an accelerometer.
+
+---
+
+## Installing Rust
+
+If Rust is not installed, the recommended way is via rustup:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Then restart the shell or run:
+
+```bash
+source ~/.cargo/env
+```
+
+---
+
+## Building the program
+
+Clone the repository:
+
+```bash
+git clone https://codeberg.org/ramael/iio-rotation.git
+cd iio-rotation
+```
+
+Compile in release mode:
+
+```bash
+cargo build --release
+```
+
+The resulting binary will be located at:
+
+```
+target/release/iio-rotation
+```
+
+Optionally install it system-wide:
+
+```bash
+sudo install -Dm755 target/release/iio-rotation /usr/local/bin/iio-rotation
+```
+
+---
+
+## Configuration files
+
+### Default behavior
+
+If no configuration file is specified using the `-c` option, the program first tries to load the configuration from:
+
+```toml
+~/.config/iio-rotation/config.toml
+```
+
+If this file does not exist, the built-in default configuration is used instead.
+
+---
+
+### User configuration directory
+
+Recommended location for user configuration files:
+
+```toml
+~/.config/iio-rotation/
+```
+
+Example:
+
+```
+~/.config/iio-rotation/hyprland.toml
+~/.config/iio-rotation/niri.toml
+~/.config/iio-rotation/wlroots.toml
+~/.config/iio-rotation/x11.toml
+```
+
+Configuration files are normal TOML files and can be freely edited by the user.
+
+---
+
+### Selecting a configuration file
+
+Use the `-c` option to select which configuration file to load:
 
 ```bash
 iio-rotation -c ~/.config/iio-rotation/hyprland.toml
 ```
 
+The path is relative to the user’s home directory if not absolute.
+
 ---
 
-### Override debounce from CLI
+## Running the program
+
+### Interactive mode (default)
+
+In this mode, the program listens for accelerometer events via D-Bus and reacts to orientation changes:
+
+```bash
+iio-rotation -c ~/.config/iio-rotation/hyprland.toml
+```
+
+The program blocks while waiting for events and does not consume CPU time unnecessarily.
+
+---
+
+### Overriding debounce time
+
+The debounce time defined in the configuration file can be overridden from the command line:
 
 ```bash
 iio-rotation -d 500
 ```
 
+The value is in milliseconds.
+
 ---
 
-### Test mode (`-e`)
+### Test mode
 
-Used to manually test configuration and scripts without waiting for D-Bus events.
+Test mode allows manual testing of configuration files and scripts without using D-Bus.
+
+Example:
 
 ```bash
 iio-rotation -c hyprland.toml -e normal
@@ -169,9 +287,19 @@ iio-rotation -c hyprland.toml -e rightup
 iio-rotation -c hyprland.toml -e bottomup
 ```
 
-In this mode:
+In test mode:
 
 * D-Bus is not used
 * debounce is ignored
 * only the selected command is executed
+
+This is useful for validating scripts and configuration logic.
+
+---
+
+## Notes
+
+* The program automatically claims and releases the accelerometer via `SensorProxy`.
+* All commands from the configuration file are executed via `sh -c`.
+* Shell features such as chaining commands or calling external scripts are supported.
 
