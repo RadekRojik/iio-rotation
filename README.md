@@ -303,3 +303,10 @@ This is useful for validating scripts and configuration logic.
 * All commands from the configuration file are executed via `sh -c`.
 * Shell features such as chaining commands or calling external scripts are supported.
 
+## Prebuilt binaries
+
+Prebuilt Linux binaries are available on GitHub Releases.
+
+The always-latest release can be found here:
+
+https://github.com/RadekRojik/iio-rotation/releases/latest
